@@ -55,7 +55,7 @@ const ProductController = {
       const { id } = req.params
       const product = await ProductService.findOne({ _id: id })
       if (!product)  {
-        throw new NotFoundProductError(`Product with ${id} not found.`)
+        throw new NotFoundProductError(`Product with "${id}" not found.`)
       }
       const payload = req?.body
       const productExists = await ProductService.findOne({
