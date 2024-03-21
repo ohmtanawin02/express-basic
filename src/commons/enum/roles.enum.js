@@ -1,0 +1,7 @@
+export default {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  AGENT: 'AGENT',
+  SUPERVISOR: 'SUPERVISOR',
+  MANAGER: 'MANAGER',
+  API: 'API'
+}
