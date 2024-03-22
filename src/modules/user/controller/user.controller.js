@@ -9,20 +9,30 @@ import NotFoundUserError from '../exception/not-found-user.error.js'
 const UserController = {
   create: async (req, res, next) => {
     try {
-      const payload = req?.body
-      const user = await UserService.findOne({ email: payload?.email })
-      if (user) {
-        throw new DuplicateUserError(`User with email "${payload.email}" is already exists.`)
+      const { body } = req
+      const emailExists = await UserService.findOne({
+        email: body?.email,
+        status: statusEnum.ACTIVE
+      })
+      if (emailExists) {
+        throw new DuplicateUserError(`User with email "${body.email}" is already exists.`)
       }
       const salt = bcrypt.genSaltSync(8)
-      payload.password = bcrypt.hashSync(payload.password, salt)
+      const hashPassword = bcrypt.hashSync(body.password, salt)
+      const { id, email } = req._requestUser
+
       const created = await UserService.create({
-        ...payload,
-        createdById: req._requestUser.id,
-        createdByEmail: req._requestUser.email
+        imageUrl: body?.imageUrl,
+        email: body?.email,
+        password: hashPassword,
+        firstName: body?.firstName,
+        lastName: body?.lastName,
+        createdById: id,
+        createdByEmail: email
       })
       return responseSuccess(res, 201, created)
     } catch (error) {
+      console.error(error)
       next(error)
     }
   },
@@ -59,20 +69,23 @@ const UserController = {
         throw new NotFoundUserError(`User with id "${id}" not found.`)
       }
 
-      const payload = req.body
+      const { body } = req
 
       const userExists = await UserService.findOne({
         _id: { $ne: id },
-        email: email?.name
+        email: body?.email
       })
       if (userExists) {
-        throw new DuplicateUserError(`Product with name "${payload.email}" already exists.`)
+        throw new DuplicateUserError(`Product with name "${body.email}" already exists.`)
       }
 
       const { id: updatedById, email } = req._requestUser
 
       const updated = await UserService.update(id, {
-        ...payload,
+        imageUrl: body?.imageUrl,
+        email: body?.email,
+        firstName: body?.firstName,
+        lastName: body?.lastName,
         updatedById,
         updatedByEmail: email
       })

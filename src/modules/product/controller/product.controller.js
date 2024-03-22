@@ -8,14 +8,19 @@ import ProductService from '../service/product.service.js'
 const ProductController = {
   create: async (req, res, next) => {
     try {
-      const payload = req?.body
-      const product = await ProductService.findOne({ name: payload.name })
+      const { body } = req
+      const product = await ProductService.findOne({
+        name: body.name,
+        status: statusEnum.ACTIVE
+      })
       if (product) {
-        throw new DuplicateProductError(`Product with name "${payload.name}" already exists.`)
+        throw new DuplicateProductError(`Product with name "${body.name}" already exists.`)
       }
       const { id, email } = req._requestUser
       const created = await ProductService.create({
-        ...payload,
+        name: body?.name,
+        category: body?.category,
+        price: body?.price,
         createdById: id,
         createdByEmail: email
       })
@@ -54,21 +59,23 @@ const ProductController = {
     try {
       const { id } = req.params
       const product = await ProductService.findOne({ _id: id })
-      if (!product)  {
+      if (!product) {
         throw new NotFoundProductError(`Product with "${id}" not found.`)
       }
-      const payload = req?.body
+      const { body } = req
       const productExists = await ProductService.findOne({
         _id: { $ne: id },
-        name: payload?.name
+        name: body?.name
       })
       if (productExists) {
-        throw new DuplicateProductError(`Product with name "${payload.name}" already exists.`)
+        throw new DuplicateProductError(`Product with name "${body.name}" already exists.`)
       }
       const { id: updatedById, email } = req._requestUser
 
       const updated = await ProductService.update(id, {
-        ...payload,
+        name: body?.name,
+        category: body?.category,
+        price: body?.price,
         updatedById,
         updatedByEmail: email
       })
@@ -82,7 +89,7 @@ const ProductController = {
     try {
       const { id } = req.params
       const product = await ProductService.findOne({ _id: id })
-      if (!product)  {
+      if (!product) {
         throw new NotFoundProductError(`Product with ${id} not found.`)
       }
       await ProductService.softDelete({ _id: id })
