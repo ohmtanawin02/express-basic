@@ -4,6 +4,10 @@ import responseSuccess from '../../../utils/response-success.js'
 import DuplicateProductError from '../exception/duplicate-product.error.js'
 import NotFoundProductError from '../exception/not-found-product.error.js'
 import ProductService from '../service/product.service.js'
+import humps from 'humps'
+import writeFileBuffer from '../../../utils/xlsx.js'
+import dayjs from '../../../plugin/day.js'
+import { Readable } from 'stream'
 
 const ProductController = {
   create: async (req, res, next) => {
@@ -103,7 +107,38 @@ const ProductController = {
     } catch (error) {
       next(error)
     }
+  },
+
+  exportProductXlsx: async (req, res, next) => {
+    try {
+      const products = await ProductService.paginate(req.query)
+      const excelSheet = products.docs.map((product) => {
+        const cell = {
+          ไอดีสินค้า: product.code,
+          ชื่อสินค้า: product.name,
+          รายละเอียดสินค้า: product.detail,
+          ราคาสินค้า: product.price,
+          หมวดหมู่: product.category.name
+        }
+        return humps.decamelizeKeys(cell)
+      })
+
+      const fileBuffer = await writeFileBuffer(excelSheet)
+      const filename = `Product_Raw_${dayjs().format('DD-MM-YYYYTHH-mm')}`
+      const stream = Readable.from(fileBuffer)
+
+      res.header(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      )
+      res.header('Content-Disposition', `attachment; filename=${filename}`)
+
+      stream.pipe(res)
+    } catch (error) {
+      next(error)
+    }
   }
+
 }
 
 export default ProductController

@@ -10,6 +10,7 @@ const router = Router()
 const validator = createValidator({})
 
 router.get('/', validator.query(productPaginateDto.PaginateProductDto), ProductController.paginate)
+router.get('/export', validator.query(productPaginateDto.PaginateProductDto), ProductController.exportProductXlsx)
 router.post('/', authMiddleware, validator.body(CreateProductDto), ProductController.create)
 router.get('/:id', authMiddleware, ProductController.findOne)
 router.put('/:id', validator.body(UpdateProductDto), ProductController.update)
