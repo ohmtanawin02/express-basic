@@ -9,11 +9,16 @@ const ProductService = {
   getAll (query) {
     return ProductModel.find(query)
   },
+
   async paginate (query) {
     const options = {
       page: Number(query.page),
       limit: Number(query.limit),
-      sort: {}
+      sort: {},
+      populate: {
+        path: 'category',
+        select: 'name'
+      }
     }
 
     if (query.sortBy && query.sortOrder) {
@@ -23,12 +28,11 @@ const ProductService = {
     const queryParams = productPaginateDto.buildQuery(query)
 
     const products = await ProductModel.paginate(queryParams, options)
-
     return products
   },
-
+  
   findOne (query) {
-    return ProductModel.findOne(query)
+    return ProductModel.findOne(query).populate({ path: 'ProductCategory' })
   },
 
   async update (id, body) {

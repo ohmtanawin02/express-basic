@@ -8,19 +8,21 @@ import ProductService from '../service/product.service.js'
 const ProductController = {
   create: async (req, res, next) => {
     try {
-      const { body } = req
+      const { imageUrl, name, detail, price, category } = req.body
       const product = await ProductService.findOne({
-        name: body.name,
+        name: name,
         status: statusEnum.ACTIVE
       })
       if (product) {
-        throw new DuplicateProductError(`Product with name "${body.name}" already exists.`)
+        throw new DuplicateProductError(`Product with name "${name}" already exists.`)
       }
       const { id, email } = req._requestUser
       const created = await ProductService.create({
-        name: body?.name,
-        category: body?.category,
-        price: body?.price,
+        imageUrl: imageUrl,
+        name: name,
+        price: price,
+        detail: detail,
+        category: category,
         createdById: id,
         createdByEmail: email
       })
@@ -29,10 +31,12 @@ const ProductController = {
       next(error)
     }
   },
+
   paginate: async (req, res, next) => {
     try {
+      const { page, limit } = req.query
       const products = await ProductService.paginate(req.query)
-      responsePaginate(res, 200, products, req.query.page, req.query.limit, products.totalPages)
+      responsePaginate(res, 200, products, page, limit, products.totalPages)
     } catch (error) {
       next(error)
     }
@@ -62,20 +66,22 @@ const ProductController = {
       if (!product) {
         throw new NotFoundProductError(`Product with "${id}" not found.`)
       }
-      const { body } = req
+      const { imageUrl, name, detail, price, category } = req.body
       const productExists = await ProductService.findOne({
         _id: { $ne: id },
-        name: body?.name
+        name: name
       })
       if (productExists) {
-        throw new DuplicateProductError(`Product with name "${body.name}" already exists.`)
+        throw new DuplicateProductError(`Product with name "${name}" already exists.`)
       }
       const { id: updatedById, email } = req._requestUser
 
       const updated = await ProductService.update(id, {
-        name: body?.name,
-        category: body?.category,
-        price: body?.price,
+        imageUrl: imageUrl,
+        name: name,
+        detail: detail,
+        price: price,
+        category: category,
         updatedById,
         updatedByEmail: email
       })
