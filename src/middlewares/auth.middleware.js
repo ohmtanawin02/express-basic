@@ -6,25 +6,6 @@ const authMiddleware = async (req, res, next) => {
     const secret = process.env.JWT_SECRET_ADMIN
     const session = req.headers?.session || null
 
-    // const findSession = await SestionService.findOne({
-    //   token,
-    //   session
-    // })
-    // const currentDate = new Date()
-    // const sestionDate = new Date(findSession?.date)
-
-    // if (!findSession) {
-    //   return res.status(401).json({
-    //     success: false,
-    //     message: 'Token has been logout'
-    //   })
-    // }
-    // if (sestionDate < currentDate) {
-    //   return res.status(401).json({
-    //     success: false,
-    //     message: 'Token expired'
-    //   })
-    // }
 
     jwt.verify(token, secret, {}, async (err, decodedJwt) => {
       if (err) {

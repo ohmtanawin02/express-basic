@@ -5,7 +5,7 @@ import DuplicateProductError from '../exception/duplicate-product.error.js'
 import NotFoundProductError from '../exception/not-found-product.error.js'
 import ProductService from '../service/product.service.js'
 import humps from 'humps'
-import writeFileBuffer from '../../../utils/xlsx.js'
+import writeFileBuffer from '../../../utils/export-xlsx.js'
 import dayjs from '../../../plugin/day.js'
 import { Readable } from 'stream'
 
@@ -24,7 +24,7 @@ const ProductController = {
       const created = await ProductService.create({
         imageUrl: imageUrl,
         name: name,
-        price: price,
+        price: +price,
         detail: detail,
         category: category,
         createdById: id,
@@ -80,7 +80,7 @@ const ProductController = {
       }
       const { id: updatedById, email } = req._requestUser
 
-      const updated = await ProductService.update(id, {
+      const updated = await ProductService.update({_id:+id}, {
         imageUrl: imageUrl,
         name: name,
         detail: detail,

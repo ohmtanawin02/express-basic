@@ -32,7 +32,7 @@ const ProductService = {
   },
   
   findOne (query) {
-    return ProductModel.findOne(query).populate({ path: 'ProductCategory' })
+    return ProductModel.findOne(query).populate({ path: 'category' })
   },
 
   async update (id, body) {

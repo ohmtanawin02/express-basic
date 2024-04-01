@@ -1,6 +1,7 @@
 import UserService from '../../user/service/user.service.js'
 import dotenv from 'dotenv'
 import AuthService from '../service/auth.service.js'
+import InvalidLoginError from '../exception/validate.error.js'
 
 dotenv.config()
 
@@ -12,14 +13,17 @@ const AuthController = {
       const { email, password } = req.body
 
       const userData = await UserService.findOne({ email })
+      const comparePassword = await authService.comparePasswords(password,userData.password)
 
-      if (!userData || !(await authService.comparePasswords(password, userData.password))) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password.' })
+      if (!userData || !comparePassword) {
+        throw new InvalidLoginError( 'Invalid email or password.' )
       }
 
       const payload = {
         email: userData.email,
-        id: userData._id
+        firstName:userData.firstName,
+        lastName:userData.lastName,
+        id: userData.id
       }
 
       const accessToken = authService.generateAccessToken(payload, {

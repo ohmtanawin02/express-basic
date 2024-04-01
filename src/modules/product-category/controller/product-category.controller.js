@@ -75,7 +75,7 @@ const ProductCategoryController = {
       }
       const { id: updatedById, email } = req._requestUser
 
-      const updated = await ProductCategoryService.update(id, {
+      const updated = await ProductCategoryService.update({_id:+id}, {
         name: name,
         updatedById,
         updatedByEmail: email

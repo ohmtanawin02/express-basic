@@ -11,8 +11,8 @@ const router = Router()
 const validator = createValidator({})
 
 router.get('/', validator.query(productCategoryPaginate.PaginateProductCategoryDto),ProductCategoryController.paginate)
-router.post('/', authMiddleware, validator.body(CreateProductCategoryDto), ProductCategoryController.create)
-router.get('/:id', authMiddleware, ProductCategoryController.findOne)
+router.post('/',  validator.body(CreateProductCategoryDto), ProductCategoryController.create)
+router.get('/:id',  ProductCategoryController.findOne)
 router.put('/:id', validator.body(UpdateProductCategoryDto), ProductCategoryController.update)
 router.delete('/:id', ProductCategoryController.delete)
 
